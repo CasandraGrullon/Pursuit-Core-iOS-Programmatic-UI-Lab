@@ -29,7 +29,7 @@ class ColorGameView: UIView {
     }()
     private lazy var highScore: UILabel = {
         let label = UILabel()
-        //label.text = "Highest Score: \(highestScore)"
+        label.text = "Highest Score: \(UserDefaults.standard.object(forKey: AppKey.highScoreKey) ?? 3)"
         label.textAlignment = .center
         return label
     }()
