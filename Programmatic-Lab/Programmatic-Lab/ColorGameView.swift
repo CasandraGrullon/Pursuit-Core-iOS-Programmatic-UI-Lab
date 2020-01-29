@@ -42,6 +42,8 @@ class ColorGameView: UIView {
         button.titleLabel?.textColor = .white
         button.backgroundColor = .systemPink
         button.addTarget(self, action: #selector(resetButtonPressed(_:)), for: .touchUpInside)
+        button.layer.cornerRadius = 20
+        //.layer.cornerRadius = cell.StoryViewButton.frame.width/2
         return button
     }()
     private lazy var colorButtonStack: UIStackView = {
@@ -92,7 +94,7 @@ class ColorGameView: UIView {
             colorButtonStack.topAnchor.constraint(equalTo: colorInPlay.bottomAnchor, constant: 20),
             colorButtonStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
             colorButtonStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            colorButtonStack.heightAnchor.constraint(equalToConstant: 80)
+            colorButtonStack.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
     private func setupPromptConstraints() {
@@ -144,7 +146,7 @@ class ColorGameView: UIView {
         let new = UIColor.init(red: myRed, green: myGreen, blue: myBlue, alpha: 1)
         return new
     }
-    public func correctOrIncorrect(bool: Bool) {
+    private func correctOrIncorrect(bool: Bool) {
         if bool == true {
             score += 1
             colorInPlay.backgroundColor = randomColor()
@@ -155,30 +157,33 @@ class ColorGameView: UIView {
             gamePrompt.textColor = .red
             colorButtonStack.isUserInteractionEnabled = false
         }
-
     }
+    
     private func rgbButtons() -> [UIButton] {
         let redButton = UIButton()
         redButton.backgroundColor = .red
+        redButton.layer.cornerRadius = 50
         redButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
         
         let greenButton = UIButton()
         greenButton.tag = 1
         greenButton.backgroundColor = .green
+        greenButton.layer.cornerRadius = 50
         greenButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
         
         let blueButton = UIButton()
         blueButton.tag = 2
         blueButton.backgroundColor = .blue
+        blueButton.layer.cornerRadius = 50
         blueButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
         
         let arrayOfButtons = [redButton, greenButton, blueButton]
-        
         return arrayOfButtons
     }
+    
     //MARK: Button Action functions
     @objc
-    private func resetButtonPressed(_ sender: UIButton){
+    private func resetButtonPressed(_ sender: UIButton) {
         colorInPlay.backgroundColor = randomColor()
         score = 0
         gamePrompt.text = ""
