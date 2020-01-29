@@ -11,11 +11,12 @@ import UIKit
 class ColorGameView: UIView {
     
     private var score = 0
+    private var currentScore = 0
     private var highestScore = 0
     
     private lazy var scoreLabel: UILabel = {
         let label = UILabel()
-        label.text = "Score: \(score)"
+        //label.text = "Score: \(score)"
         label.textAlignment = .center
         return label
     }()
@@ -26,7 +27,7 @@ class ColorGameView: UIView {
     }()
     private lazy var highScore: UILabel = {
         let label = UILabel()
-        label.text = "Highest Score: \(highestScore)"
+        //label.text = "Highest Score: \(highestScore)"
         label.textAlignment = .center
         return label
     }()
@@ -37,8 +38,10 @@ class ColorGameView: UIView {
     }()
     private lazy var resetButton: UIButton = {
         let button = UIButton()
-        button.titleLabel?.text = "Reset"
+        button.setTitle("Reset", for: .normal)
+        button.titleLabel?.textColor = .white
         button.backgroundColor = .systemPink
+        button.addTarget(self, action: #selector(resetButtonPressed(_:)), for: .touchUpInside)
         return button
     }()
     private lazy var colorButtonStack: UIStackView = {
@@ -46,84 +49,11 @@ class ColorGameView: UIView {
         stack.axis = .horizontal
         stack.distribution = .fillEqually
         stack.alignment = .fill
-        stack.spacing = 5
+        stack.spacing = 10
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
     
-    public func randomColor() -> UIColor {
-        let myRed = CGFloat.random(in: 0...1)
-        let myBlue = CGFloat.random(in: 0...1)
-        let myGreen = CGFloat.random(in: 0...1)
-        let new = UIColor.init(red: myRed, green: myGreen, blue: myBlue, alpha: 1)
-        return new
-    }
-    
-    private func rgbButtons() -> [UIButton] {
-        let redButton = UIButton()
-        redButton.backgroundColor = .red
-        redButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
-        
-        let greenButton = UIButton()
-        greenButton.tag = 1
-        greenButton.backgroundColor = .green
-        greenButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
-        
-        let blueButton = UIButton()
-        blueButton.tag = 2
-        blueButton.backgroundColor = .blue
-        blueButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
-        
-        let arrayOfButtons = [redButton, greenButton, blueButton]
-        
-        return arrayOfButtons
-    }
-    
-    @objc
-    private func buttonPressed(_ sender: UIButton) {
-        let myRed = CGFloat.random(in: 0...1)
-        let myBlue = CGFloat.random(in: 0...1)
-        let myGreen = CGFloat.random(in: 0...1)
-        let random = [myRed, myGreen, myBlue]
-        let dominantColor = random.max()
-        
-        switch dominantColor {
-        case myRed:
-            if sender.tag == 0 {
-                score += 1
-                colorInPlay.backgroundColor = randomColor()
-                gamePrompt.text = "Correct!"
-                gamePrompt.textColor = .green
-            } else {
-                gamePrompt.text = "Wrong!"
-                gamePrompt.textColor = .red
-                
-            }
-        case myGreen:
-            if sender.tag == 1 {
-                score += 1
-                colorInPlay.backgroundColor = randomColor()
-                gamePrompt.text = "Correct!"
-                gamePrompt.textColor = .green
-            } else {
-                gamePrompt.text = "Wrong!"
-                gamePrompt.textColor = .red
-            }
-        case myBlue:
-            if sender.tag == 2 {
-                score += 1
-                colorInPlay.backgroundColor = randomColor()
-                gamePrompt.text = "Correct!"
-                gamePrompt.textColor = .green
-            } else {
-                gamePrompt.text = "Wrong!"
-                gamePrompt.textColor = .red
-            }
-        default:
-            break
-        }
-        
-    }
     //MARK: Inits
     override init(frame: CGRect) {
         super.init(frame: UIScreen.main.bounds)
@@ -138,6 +68,7 @@ class ColorGameView: UIView {
         setupButtonStackConstraints()
         setupPromptConstraints()
         setupScoreConstraints()
+        setupHighScoreConstraints()
         setupResetButtonConstraints()
     }
     
@@ -185,14 +116,110 @@ class ColorGameView: UIView {
             
         ])
     }
+    private func setupHighScoreConstraints() {
+        addSubview(highScore)
+        highScore.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            highScore.topAnchor.constraint(equalTo: scoreLabel.bottomAnchor, constant: 20),
+            highScore.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            highScore.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20)
+        ])
+    }
     private func setupResetButtonConstraints() {
         addSubview(resetButton)
         resetButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             resetButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            resetButton.centerXAnchor.constraint(equalTo: centerXAnchor)
+            resetButton.centerXAnchor.constraint(equalTo: centerXAnchor),
+            resetButton.widthAnchor.constraint(equalToConstant: 100),
+            resetButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
+    public func randomColor() -> UIColor {
+        let myRed = CGFloat.random(in: 0...1)
+        let myBlue = CGFloat.random(in: 0...1)
+        let myGreen = CGFloat.random(in: 0...1)
+        let new = UIColor.init(red: myRed, green: myGreen, blue: myBlue, alpha: 1)
+        return new
+    }
+    public func correctOrIncorrect(bool: Bool) {
+        if bool == true {
+            score += 1
+            colorInPlay.backgroundColor = randomColor()
+            gamePrompt.text = "Correct!"
+            gamePrompt.textColor = .green
+        } else {
+            gamePrompt.text = "Wrong!"
+            gamePrompt.textColor = .red
+            colorButtonStack.isUserInteractionEnabled = false
+        }
+
+    }
+    private func rgbButtons() -> [UIButton] {
+        let redButton = UIButton()
+        redButton.backgroundColor = .red
+        redButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
+        
+        let greenButton = UIButton()
+        greenButton.tag = 1
+        greenButton.backgroundColor = .green
+        greenButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
+        
+        let blueButton = UIButton()
+        blueButton.tag = 2
+        blueButton.backgroundColor = .blue
+        blueButton.addTarget(self, action: #selector(buttonPressed(_:)), for: .touchUpInside)
+        
+        let arrayOfButtons = [redButton, greenButton, blueButton]
+        
+        return arrayOfButtons
+    }
+    //MARK: Button Action functions
+    @objc
+    private func resetButtonPressed(_ sender: UIButton){
+        colorInPlay.backgroundColor = randomColor()
+        score = 0
+        gamePrompt.text = ""
+        colorButtonStack.isUserInteractionEnabled = true
+    }
     
+    @objc
+    private func buttonPressed(_ sender: UIButton) {
+        let myRed = CGFloat.random(in: 0...1)
+        let myBlue = CGFloat.random(in: 0...1)
+        let myGreen = CGFloat.random(in: 0...1)
+        let random = [myRed, myGreen, myBlue]
+        let dominantColor = random.max()
+        
+        switch dominantColor {
+        case myRed:
+            if sender.tag == 0 {
+                correctOrIncorrect(bool: true)
+            } else {
+                correctOrIncorrect(bool: false)
+            }
+        case myGreen:
+            if sender.tag == 1 {
+                correctOrIncorrect(bool: true)
+            } else {
+                correctOrIncorrect(bool: false)
+            }
+        case myBlue:
+            if sender.tag == 2 {
+                correctOrIncorrect(bool: true)
+            } else {
+                correctOrIncorrect(bool: false)
+            }
+        default:
+            break
+        }
+        scoreLabel.text = "Score: \(score)"
+        highScore.text = "High Score: \(highestScore)"
+        currentScore = score
+        if currentScore > highestScore {
+            highestScore = currentScore
+        }
+    }
 }
