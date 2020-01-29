@@ -12,13 +12,21 @@ class ColorGameViewController: UIViewController {
 
     private let colorGameView = ColorGameView()
     
+
+    
     override func loadView() {
         view = colorGameView
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        configureNavBar()
     }
+
+    private func configureNavBar() {
+        navigationItem.title = "RGB Color Guessing Game"
+    }
+    
 
     
 
