@@ -7,7 +7,9 @@
 //
 
 import UIKit
-
+struct AppKey {
+    static let highScoreKey = "high score"
+}
 class ColorGameView: UIView {
     
     private var score = 0
@@ -154,6 +156,7 @@ class ColorGameView: UIView {
             gamePrompt.textColor = .green
         } else {
             gamePrompt.text = "Wrong!"
+            score = 0
             gamePrompt.textColor = .red
             colorButtonStack.isUserInteractionEnabled = false
         }
@@ -225,6 +228,7 @@ class ColorGameView: UIView {
         currentScore = score
         if currentScore > highestScore {
             highestScore = currentScore
+            UserDefaults.standard.set(highestScore, forKey: AppKey.highScoreKey)
         }
     }
 }
